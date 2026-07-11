@@ -35,9 +35,8 @@
   scrollCue.innerHTML = '<span>Scroll to enter</span><i></i>';
   hero.appendChild(scrollCue);
 
-  let tx = 0, ty = 0, px = 0, py = 0, currentScrollY = scrollYValue();
+  let tx = 0, ty = 0, px = 0, py = 0, scrollY = scrollYValue();
   function scrollYValue(){ return window.scrollY || document.documentElement.scrollTop || 0; }
-  root.style.setProperty('--px', '0'); root.style.setProperty('--py', '0');
   root.style.setProperty('--hero-progress', '0');
 
   addEventListener('pointermove', (e) => {
@@ -46,16 +45,21 @@
     tx = (e.clientX / innerWidth - .5) * 2;
     ty = (e.clientY / innerHeight - .5) * 2;
   }, {passive:true});
-  addEventListener('scroll', () => { currentScrollY = scrollYValue(); }, {passive:true});
+  addEventListener('scroll', () => { scrollY = scrollYValue(); }, {passive:true});
 
   const grid = hero.querySelector('.hero-grid');
   const photo = hero.querySelector('.hero-photo-frame');
   const copy = grid?.firstElementChild;
   function animate(){
     px += (tx - px) * .055; py += (ty - py) * .055;
-    const progress = Math.max(0, Math.min(1, currentScrollY / Math.max(hero.offsetHeight * .72, 1)));
-    root.style.setProperty('--px', px.toFixed(3)); root.style.setProperty('--py', py.toFixed(3));
+    const progress = Math.max(0, Math.min(1, scrollY / Math.max(hero.offsetHeight * .72, 1)));
     root.style.setProperty('--hero-progress', progress.toFixed(4));
+    const setLen=(name,value)=>root.style.setProperty(name, `${value.toFixed(2)}px`);
+    setLen('--x18',px*-18); setLen('--y10',py*-10); setLen('--x22',px*-22); setLen('--y17',py*-17);
+    setLen('--x16',px*16); setLen('--x14',px*14); setLen('--y9',py*9); setLen('--x44',px*44); setLen('--y32',py*32);
+    setLen('--x55n',px*-55); setLen('--y35n',py*-35); setLen('--x36',px*36); setLen('--y22n',py*-22);
+    setLen('--x8',px*8); setLen('--y5',py*5); setLen('--x9n',px*-9); setLen('--y6n',py*-6);
+    setLen('--s90',progress*-90); setLen('--s52',progress*-52); setLen('--s80',progress*-80); setLen('--s70',progress*70); setLen('--s28',progress*-28);
     if (!reduceMotion && !coarse) {
       if (grid) grid.style.transform = `rotateX(${py * -1.15}deg) rotateY(${px * 1.6}deg)`;
       if (photo) photo.style.transform = `perspective(1450px) rotateX(${py * -3.2}deg) rotateY(${px * 5.6}deg) translate3d(${px * 12}px,${py * 8 - progress * 42}px,95px) scale(${1 + progress * .035})`;
@@ -99,7 +103,6 @@
     });
   }
 
-  // Lightweight depth particles.
   const canvas = document.getElementById('portal-particles');
   if(canvas){
     const ctx=canvas.getContext('2d'); let w=0,h=0,dpr=1,particles=[];
